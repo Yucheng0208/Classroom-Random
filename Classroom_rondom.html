@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抽籤程式</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        .start-button {
+            background-color: #28a745;
+        }
+
+        .stop-button {
+            background-color: #dc3545;
+        }
+
+        .reset-button {
+            background-color: #007bff; /* 藍色背景 */
+        }
+
+        #animation {
+            display: none;
+            text-align: center;
+            font-size: 24px;
+            margin-top: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-100%); }
+        }
+
+        .animation {
+            animation: spin 1s linear infinite;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 24px;
+            max-width: 80%;
+            margin: auto;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            color: #28a745;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .close {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>抽籤程式</h1>
+        <div class="form-group">
+            <label for="drawMode">選擇抽籤模式：</label>
+            <select id="drawMode">
+                <option value="normal">正常抽籤</option>
+                <option value="simple">單純抽籤</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="totalNumbers">座號總數：</label>
+            <input type="number" id="totalNumbers" min="1">
+        </div>
+        <div class="form-group">
+            <label for="absentNumbers">請假號碼（以逗號分隔）：</label>
+            <input type="text" id="absentNumbers" placeholder="例如：1, 2, 3">
+        </div>
+        <div class="form-group">
+            <label for="bgMusic">上傳背景音樂：</label>
+            <input type="file" id="bgMusic" accept="audio/*">
+        </div>
+        <div class="form-group">
+            <label for="stopSound">上傳結束音效：</label>
+            <input type="file" id="stopSound" accept="audio/*">
+        </div>
+        <button id="drawButton" class="start-button" onclick="toggleDraw()">開始抽籤</button>
+        <button class="reset-button" onclick="resetAbsentNumbers()">重置請假號碼</button>
+        <div id="animation" class="animation">抽籤中...</div>
+        <div id="result"></div>
+    </div>
+
+    <div id="resultModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title">抽籤結果</div>
+            <div id="modalText"></div>
+            <button class="close" onclick="closeModal()">關閉視窗</button>
+        </div>
+    </div>
+
+    <script>
+        let bgMusic = "bg.mp3";
+        let stopSound = "end.mp3";
+        let bgMusicAudio = null;
+        let drawInterval = null;
+        let drawing = false;
+
+        document.getElementById('bgMusic').addEventListener('change', function(event) {
+            if (event.target.files[0]) {
+                bgMusic = URL.createObjectURL(event.target.files[0]);
+            }
+        });
+
+        document.getElementById('stopSound').addEventListener('change', function(event) {
+            if (event.target.files[0]) {
+                stopSound = URL.createObjectURL(event.target.files[0]);
+            }
+        });
+
+        function playSound(sound) {
+            const audio = new Audio(sound);
+            audio.play();
+        }
+
+        function playBgMusic() {
+            bgMusicAudio = new Audio(bgMusic);
+            bgMusicAudio.loop = true;
+            bgMusicAudio.play();
+        }
+
+        function stopBgMusic() {
+            if (bgMusicAudio) {
+                bgMusicAudio.pause();
+                bgMusicAudio.currentTime = 0;
+            }
+        }
+
+        function toggleDraw() {
+            if (drawing) {
+                stopDrawing();
+            } else {
+                startDrawing();
+            }
+        }
+
+        function startDrawing() {
+            const modes = ["大十字", "小十字", "大叉叉", "小叉叉", "九宮格", "正方形", "三角形"];
+            const totalNumbers = parseInt(document.getElementById('totalNumbers').value);
+            const absentNumbers = document.getElementById('absentNumbers').value.split(',').map(Number).filter(n => !isNaN(n));
+            const resultElement = document.getElementById('result');
+            const animationElement = document.getElementById('animation');
+            const drawButton = document.getElementById('drawButton');
+            const drawMode = document.getElementById('drawMode').value;
+
+            if (!totalNumbers || totalNumbers <= 0) {
+                resultElement.innerHTML = '請輸入有效的座號總數。';
+                return;
+            }
+
+            let availableNumbers = [];
+            for (let i = 1; i <= totalNumbers; i++) {
+                if (!absentNumbers.includes(i)) {
+                    availableNumbers.push(i);
+                }
+            }
+
+            if (availableNumbers.length === 0) {
+                resultElement.innerHTML = '沒有可用的座號。';
+                return;
+            }
+
+            if (drawMode === "normal") {
+                // 開始播放背景音樂並顯示動畫
+                playBgMusic();
+                animationElement.style.display = 'block';
+                drawButton.textContent = '停止抽籤';
+                drawButton.classList.remove('start-button');
+                drawButton.classList.add('stop-button');
+                drawing = true;
+
+                drawInterval = setInterval(() => {
+                    const randomModeIndex = Math.floor(Math.random() * modes.length);
+                    const randomNumberIndex = Math.floor(Math.random() * availableNumbers.length);
+                    const drawnMode = modes[randomModeIndex];
+                    const drawnNumber = availableNumbers[randomNumberIndex];
+
+                    resultElement.innerHTML = `抽籤模式：${drawnMode}<br>抽中的座號：${drawnNumber}`;
+                }, 100);  // 每0.1秒更新一次結果，模擬抽籤動畫
+            } else {
+                // 單純抽籤模式
+                const randomModeIndex = Math.floor(Math.random() * modes.length);
+                const randomNumberIndex = Math.floor(Math.random() * availableNumbers.length);
+                const drawnMode = modes[randomModeIndex];
+                const drawnNumber = availableNumbers[randomNumberIndex];
+
+                resultElement.innerHTML = `抽籤模式：${drawnMode}<br>抽中的座號：${drawnNumber}`;
+                stopDrawing();
+            }
+        }
+
+        function stopDrawing() {
+            clearInterval(drawInterval);
+            stopBgMusic();
+            if (stopSound) {
+                playSound(stopSound);
+            }
+            document.getElementById('animation').style.display = 'none';
+            const drawButton = document.getElementById('drawButton');
+            drawButton.textContent = '開始抽籤';
+            drawButton.classList.remove('stop-button');
+            drawButton.classList.add('start-button');
+            drawing = false;
+
+            // 顯示結果彈窗
+            const resultElement = document.getElementById('result');
+            const resultText = resultElement.innerHTML;
+            const modalText = document.getElementById('modalText');
+            modalText.innerHTML = resultText;
+            document.getElementById('resultModal').style.display = 'flex';
+
+            // 將最終抽中的號碼加入忽略名單
+            const drawnNumber = parseInt(resultText.match(/抽中的座號：(\d+)/)[1]);
+            const absentNumbers = document.getElementById('absentNumbers').value.split(',').map(Number).filter(n => !isNaN(n));
+            absentNumbers.push(drawnNumber);
+            document.getElementById('absentNumbers').value = absentNumbers.join(', ');
+        }
+
+        function resetAbsentNumbers() {
+            document.getElementById('absentNumbers').value = '';
+        }
+
+        function closeModal() {
+            document.getElementById('resultModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
