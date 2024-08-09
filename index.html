@@ -103,7 +103,7 @@
             background-color: #fff;
             padding: 20px;
             border-radius: 10px;
-            text-align: center;
+            text-align: left;
             font-size: 24px;
             max-width: 80%;
             margin: auto;
@@ -112,6 +112,7 @@
         .modal-title {
             font-size: 24px;
             color: #28a745;
+            text-align: center;
             font-weight: bold;
             margin-bottom: 20px;
         }
@@ -254,7 +255,7 @@
                     const drawnMode = modes[randomModeIndex];
                     const drawnNumber = availableNumbers[randomNumberIndex];
 
-                    resultElement.innerHTML = `抽籤模式：${drawnMode}<br>抽中的座號：${drawnNumber}`;
+                    resultElement.innerHTML = `抽籤模式：${drawnMode}<br>中籤座號：${drawnNumber}`;
                 }, 100);  // 每0.1秒更新一次結果，模擬抽籤動畫
             } else {
                 // 單純抽籤模式
@@ -264,7 +265,7 @@
                 const drawnNumber = availableNumbers[randomNumberIndex];
 
                 //resultElement.innerHTML = `抽籤模式：${drawnMode}<br>抽中的座號：${drawnNumber}`;
-                resultElement.innerHTML = `抽中的座號：${drawnNumber}`;
+                resultElement.innerHTML = `中籤座號：${drawnNumber}`;
                 stopDrawing();
             }
         }
