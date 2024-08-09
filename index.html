@@ -5,8 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>抽籤程式</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC&family=Noto+Serif+TC:wght@200..900&display=swap');
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: "Noto Sans TC", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 400;
+            font-style: normal;
             margin: 0;
             padding: 0;
             display: flex;
@@ -23,12 +28,16 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 90%;
             max-width: 400px;
+            font-family: "Noto Serif TC", serif;
+            font-weight: 400; /* You can change this weight as needed */
         }
 
         h1 {
             text-align: center;
             margin-bottom: 20px;
             font-size: 24px;
+            font-family: "Noto Serif TC", serif;
+            font-weight: 700; /* You can adjust this weight if needed */
         }
 
         .form-group {
@@ -38,12 +47,14 @@
         label {
             display: block;
             margin-bottom: 5px;
+            font-family: "Noto Sans TC", sans-serif;
         }
 
         input, select {
             width: 100%;
             padding: 8px;
             box-sizing: border-box;
+            font-family: "Noto Sans TC", sans-serif;
         }
 
         button {
@@ -55,6 +66,7 @@
             cursor: pointer;
             margin-top: 10px;
             font-size: 16px;
+            font-family: "Noto Sans TC", sans-serif;
         }
 
         .start-button {
@@ -122,6 +134,8 @@
             font-size: 24px;
             max-width: 80%;
             margin: auto;
+            font-family: "Noto Serif TC", serif;
+            font-weight: 400; /* Adjust this weight as needed */
         }
 
         .modal-title {
@@ -130,6 +144,8 @@
             text-align: center;
             font-weight: bold;
             margin-bottom: 20px;
+            font-family: "Noto Serif TC", serif;
+            font-weight: 700; /* Adjust this weight if needed */
         }
 
         .close {
@@ -140,6 +156,7 @@
             padding: 10px 20px;
             cursor: pointer;
             margin-top: 20px;
+            font-family: "Noto Sans TC", sans-serif;
         }
     </style>
 </head>
@@ -162,6 +179,15 @@
             <label for="absentNumbers">請假與抽過座號（以逗號分隔）：</label>
             <input type="text" id="absentNumbers" placeholder="例如：1, 2, 3">
         </div>
+        <div class="form-group">
+            <label for="rowNumber">行數（可以是負值）：</label>
+            <input type="number" id="rowNumber">
+        </div>
+        <div class="form-group">
+            <label for="columnNumber">列數（可以是負值）：</label>
+            <input type="number" id="columnNumber">
+        </div>
+        <div id="originPosition" style="margin-top: 10px; font-weight: bold;">原點位置：未設定</div>
         <div class="form-group">
             <label for="bgMusic">抽籤音效：</label>
             <input type="file" id="bgMusic" accept="audio/*">
@@ -271,7 +297,6 @@
                     const drawnMode = modes[randomModeIndex];
                     const drawnNumber = availableNumbers[randomNumberIndex];
 
-                    // 將結果顯示在彈出視窗中
                     const modalText = document.getElementById('modalText');
                     modalText.innerHTML = `抽籤模式：${drawnMode}<br>中籤座號：${drawnNumber}`;
                 }, 100);
@@ -319,6 +344,38 @@
         function closeModal() {
             document.getElementById('resultModal').style.display = 'none';
         }
+
+        // 更新原點位置
+        function updateOriginPosition() {
+            const row = parseInt(document.getElementById('rowNumber').value);
+            const column = parseInt(document.getElementById('columnNumber').value);
+
+            let position = '未設定';
+
+            if (!isNaN(row) && !isNaN(column)) {
+                if (row > 0 && column > 0) {
+                    position = '右上';
+                } else if (row > 0 && column < 0) {
+                    position = '左上';
+                } else if (row < 0 && column < 0) {
+                    position = '左下';
+                } else if (row < 0 && column > 0) {
+                    position = '右下';
+                } else if (row === 0 && column === 0) {
+                    position = '中心';
+                } else if (row === 0) {
+                    position = column > 0 ? '中間右側' : '中間左側';
+                } else if (column === 0) {
+                    position = row > 0 ? '中間上方' : '中間下方';
+                }
+            }
+
+            document.getElementById('originPosition').textContent = `原點位置：${position}`;
+        }
+
+        // 監聽行和列數值的變化
+        document.getElementById('rowNumber').addEventListener('input', updateOriginPosition);
+        document.getElementById('columnNumber').addEventListener('input', updateOriginPosition);
     </script>
 </body>
 </html>
