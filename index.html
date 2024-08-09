@@ -85,6 +85,21 @@
             animation: spin 1s linear infinite;
         }
 
+        @keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            25% {
+                transform: translateX(-10px);
+            }
+            50% {
+                transform: translateX(10px);
+            }
+            75% {
+                transform: translateX(-10px);
+            }
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -215,6 +230,10 @@
         }
 
         function startDrawing() {
+            const container = document.querySelector('.container');
+            container.style.animation = 'shake 0.5s';
+            container.style.animationIterationCount = 'infinite';
+
             const modes = ["大十字", "小十字", "大叉叉", "小叉叉", "九宮格", "正方形", "三角形"];
             const totalNumbers = parseInt(document.getElementById('totalNumbers').value);
             const absentNumbers = document.getElementById('absentNumbers').value.split(',').map(Number).filter(n => !isNaN(n));
@@ -241,7 +260,6 @@
             }
 
             if (drawMode === "normal") {
-                // 開始播放背景音樂並顯示動畫
                 playBgMusic();
                 animationElement.style.display = 'block';
                 drawButton.textContent = '停止抽籤';
@@ -256,21 +274,22 @@
                     const drawnNumber = availableNumbers[randomNumberIndex];
 
                     resultElement.innerHTML = `抽籤模式：${drawnMode}<br>中籤座號：${drawnNumber}`;
-                }, 100);  // 每0.1秒更新一次結果，模擬抽籤動畫
+                }, 100);
             } else {
-                // 單純抽籤模式
                 const randomModeIndex = Math.floor(Math.random() * modes.length);
                 const randomNumberIndex = Math.floor(Math.random() * availableNumbers.length);
                 const drawnMode = modes[randomModeIndex];
                 const drawnNumber = availableNumbers[randomNumberIndex];
 
-                //resultElement.innerHTML = `抽籤模式：${drawnMode}<br>抽中的座號：${drawnNumber}`;
                 resultElement.innerHTML = `中籤座號：${drawnNumber}`;
                 stopDrawing();
             }
         }
 
         function stopDrawing() {
+            const container = document.querySelector('.container');
+            container.style.animation = '';
+
             clearInterval(drawInterval);
             stopBgMusic();
             if (stopSound) {
@@ -283,14 +302,12 @@
             drawButton.classList.add('start-button');
             drawing = false;
 
-            // 顯示結果彈窗
             const resultElement = document.getElementById('result');
             const resultText = resultElement.innerHTML;
             const modalText = document.getElementById('modalText');
             modalText.innerHTML = resultText;
             document.getElementById('resultModal').style.display = 'flex';
 
-            // 將最終抽中的號碼加入忽略名單
             const drawnNumber = parseInt(resultText.match(/抽中的座號：(\d+)/)[1]);
             const absentNumbers = document.getElementById('absentNumbers').value.split(',').map(Number).filter(n => !isNaN(n));
             absentNumbers.push(drawnNumber);
