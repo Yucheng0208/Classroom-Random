@@ -88,30 +88,6 @@
             margin-top: 20px;
         }
 
-        @keyframes spin {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(-100%); }
-        }
-
-        .animation {
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes shake {
-            0%, 100% {
-                transform: translateX(0);
-            }
-            25% {
-                transform: translateX(-10px);
-            }
-            50% {
-                transform: translateX(10px);
-            }
-            75% {
-                transform: translateX(-10px);
-            }
-        }
-
         .modal {
             display: none;
             position: fixed;
@@ -172,14 +148,13 @@
             </select>
         </div>
         <div class="form-group" id="rowNumberGroup" style="display: none;">
-            <label for="rowNumber">行數（可以是負值）：</label>
-            <input type="number" id="rowNumber">
+            <label for="rowNumber">行數：</label>
+            <input type="number" id="rowNumber" min="1">
         </div>
         <div class="form-group" id="columnNumberGroup" style="display: none;">
-            <label for="columnNumber">列數（可以是負值）：</label>
-            <input type="number" id="columnNumber">
+            <label for="columnNumber">列數：</label>
+            <input type="number" id="columnNumber" min="1">
         </div>
-        <div id="originPosition" style="margin-top: 10px; font-weight: bold; display: none;">原點位置：未設定</div>
         <div class="form-group" id="totalNumbersGroup">
             <label for="totalNumbers">座號總數：</label>
             <input type="number" id="totalNumbers" min="1">
@@ -253,20 +228,17 @@
             const absentNumbersGroup = document.getElementById('absentNumbersGroup');
             const rowNumberGroup = document.getElementById('rowNumberGroup');
             const columnNumberGroup = document.getElementById('columnNumberGroup');
-            const originPosition = document.getElementById('originPosition');
 
             if (drawMode === "coordinate") {
                 totalNumbersGroup.style.display = 'none';
                 absentNumbersGroup.style.display = 'none';
                 rowNumberGroup.style.display = 'block';
                 columnNumberGroup.style.display = 'block';
-                originPosition.style.display = 'block';
             } else {
                 totalNumbersGroup.style.display = 'block';
                 absentNumbersGroup.style.display = 'block';
                 rowNumberGroup.style.display = 'none';
                 columnNumberGroup.style.display = 'none';
-                originPosition.style.display = 'none';
             }
         }
 
@@ -281,7 +253,7 @@
         function startDrawing() {
             const drawMode = document.getElementById('drawMode').value;
 
-            if (drawMode === "normal" || drawMode === "simple") {
+            if (drawMode === "simple") {
                 playBgMusic();
                 document.getElementById('animation').style.display = 'block';
                 document.getElementById('drawButton').textContent = '停止抽籤';
@@ -290,7 +262,10 @@
                 drawing = true;
 
                 const totalNumbers = parseInt(document.getElementById('totalNumbers').value);
-                const absentNumbers = document.getElementById('absentNumbers').value.split(',').map(Number).filter(n => !isNaN(n));
+                const absentNumbers = document.getElementById('absentNumbers').value
+                    .split(',')
+                    .map(Number)
+                    .filter(n => !isNaN(n) && n > 0);
 
                 let availableNumbers = [];
                 for (let i = 1; i <= totalNumbers; i++) {
@@ -306,26 +281,87 @@
                 }
 
                 drawInterval = setInterval(() => {
+                    if (availableNumbers.length === 0) {
+                        stopDrawing();
+                        return;
+                    }
+
                     const randomNumberIndex = Math.floor(Math.random() * availableNumbers.length);
                     lastDrawnNumber = availableNumbers[randomNumberIndex];
+
+                    if (typeof lastDrawnNumber === 'undefined' || lastDrawnNumber === null || lastDrawnNumber <= 0) {
+                        alert('無效的座號抽取結果，請檢查輸入');
+                        stopDrawing();
+                        return;
+                    }
 
                     const modalText = document.getElementById('modalText');
                     modalText.innerHTML = `中籤座號：${lastDrawnNumber}`;
 
-                    // 更新可用的號碼列表，確保不會再次抽中相同的號碼
                     availableNumbers.splice(randomNumberIndex, 1);
 
+                }, 100);
+
+            } else if (drawMode === "normal") {
+                playBgMusic();
+                document.getElementById('animation').style.display = 'block';
+                document.getElementById('drawButton').textContent = '停止抽籤';
+                document.getElementById('drawButton').classList.remove('start-button');
+                document.getElementById('drawButton').classList.add('stop-button');
+                drawing = true;
+
+                const totalNumbers = parseInt(document.getElementById('totalNumbers').value);
+                const absentNumbers = document.getElementById('absentNumbers').value
+                    .split(',')
+                    .map(Number)
+                    .filter(n => !isNaN(n) && n > 0);
+
+                let availableNumbers = [];
+                for (let i = 1; i <= totalNumbers; i++) {
+                    if (!absentNumbers.includes(i)) {
+                        availableNumbers.push(i);
+                    }
+                }
+
+                if (availableNumbers.length === 0) {
+                    alert('沒有可用的座號可供抽取。');
+                    stopDrawing();
+                    return;
+                }
+
+                drawInterval = setInterval(() => {
                     if (availableNumbers.length === 0) {
                         stopDrawing();
+                        return;
                     }
 
+                    const randomNumberIndex = Math.floor(Math.random() * availableNumbers.length);
+                    lastDrawnNumber = availableNumbers[randomNumberIndex];
+
+                    if (typeof lastDrawnNumber === 'undefined' || lastDrawnNumber === null || lastDrawnNumber <= 0) {
+                        alert('無效的座號抽取結果，請檢查輸入');
+                        stopDrawing();
+                        return;
+                    }
+
+                    const modes = ["大十字", "小十字", "大叉叉", "小叉叉", "九宮格", "正方形", "三角形"];
+                    const randomModeIndex = Math.floor(Math.random() * modes.length);
+                    const coordinatePattern = modes[randomModeIndex];
+
+                    const modalText = document.getElementById('modalText');
+                    modalText.innerHTML = `抽籤模式：${coordinatePattern}<br>中籤座號：${lastDrawnNumber}`;
+
+                    availableNumbers.splice(randomNumberIndex, 1);
+
                 }, 100);
+
+
             } else if (drawMode === "coordinate") {
                 const row = parseInt(document.getElementById('rowNumber').value);
                 const column = parseInt(document.getElementById('columnNumber').value);
 
                 if (isNaN(row) || isNaN(column) || row <= 0 || column <= 0) {
-                    alert('請輸入有效的行列數值（必須是正數）。');
+                    alert('無效的座號抽取結果，請檢查輸入');
                     return;
                 }
 
@@ -336,46 +372,13 @@
                 document.getElementById('drawButton').classList.add('stop-button');
                 drawing = true;
 
-                const modes = ["大十字", "小十字", "大叉叉", "小叉叉", "九宮格", "正方形", "三角形"];
-                const randomModeIndex = Math.floor(Math.random() * modes.length);
-                const coordinatePattern = modes[randomModeIndex];
-
                 drawInterval = setInterval(() => {
-                    let x, y;
+                    const modes = ["大十字", "小十字", "大叉叉", "小叉叉", "九宮格", "正方形", "三角形"];
+                    const randomModeIndex = Math.floor(Math.random() * modes.length);
+                    const coordinatePattern = modes[randomModeIndex];
 
-                    switch (coordinatePattern) {
-                        case 'bigCross':
-                            x = Math.floor(Math.random() * row) + 1;
-                            y = Math.floor(Math.random() * column) + 1;
-                            break;
-                        case 'smallCross':
-                            x = Math.floor(Math.random() * Math.floor(row / 2)) + 1;
-                            y = Math.floor(Math.random() * Math.floor(column / 2)) + 1;
-                            break;
-                        case 'bigX':
-                            x = Math.floor(Math.random() * row) + 1;
-                            y = Math.floor(Math.random() * column) + 1;
-                            break;
-                        case 'smallX':
-                            x = Math.floor(Math.random() * Math.floor(row / 2)) + 1;
-                            y = Math.floor(Math.random() * Math.floor(column / 2)) + 1;
-                            break;
-                        case 'grid':
-                            x = Math.floor(Math.random() * row) + 1;
-                            y = Math.floor(Math.random() * column) + 1;
-                            break;
-                        case 'square':
-                            x = Math.floor(Math.random() * row) + 1;
-                            y = Math.floor(Math.random() * column) + 1;
-                            break;
-                        case 'triangle':
-                            x = Math.floor(Math.random() * row) + 1;
-                            y = Math.floor(Math.random() * (x <= column ? x : column)) + 1;
-                            break;
-                        default:
-                            x = Math.floor(Math.random() * row) + 1;
-                            y = Math.floor(Math.random() * column) + 1;
-                    }
+                    let x = Math.floor(Math.random() * row) + 1;
+                    let y = Math.floor(Math.random() * column) + 1;
 
                     const modalText = document.getElementById('modalText');
                     modalText.innerHTML = `抽籤模式：${coordinatePattern}<br>中籤座標：( ${x}, ${y} )`;
@@ -384,9 +387,6 @@
         }
 
         function stopDrawing() {
-            const container = document.querySelector('.container');
-            container.style.animation = '';
-
             clearInterval(drawInterval);
             stopBgMusic();
             if (stopSound) {
@@ -408,45 +408,13 @@
 
         function closeModal() {
             if (lastDrawnNumber !== null) {
-                const absentNumbers = document.getElementById('absentNumbers').value.split(',').map(Number).filter(n => !isNaN(n));
+                const absentNumbers = document.getElementById('absentNumbers').value.split(',').map(Number).filter(n => !isNaN(n) && n > 0);
                 absentNumbers.push(lastDrawnNumber);
                 document.getElementById('absentNumbers').value = absentNumbers.join(', ');
                 lastDrawnNumber = null;
             }
             document.getElementById('resultModal').style.display = 'none';
         }
-
-        // 更新原點位置
-        function updateOriginPosition() {
-            const row = parseInt(document.getElementById('rowNumber').value);
-            const column = parseInt(document.getElementById('columnNumber').value);
-
-            let position = '未設定';
-
-            if (!isNaN(row) && !isNaN(column)) {
-                if (row > 0 && column > 0) {
-                    position = '右上';
-                } else if (row > 0 && column < 0) {
-                    position = '左上';
-                } else if (row < 0 && column < 0) {
-                    position = '左下';
-                } else if (row < 0 && column > 0) {
-                    position = '右下';
-                } else if (row === 0 && column === 0) {
-                    position = '中心';
-                } else if (row === 0) {
-                    position = column > 0 ? '中間右側' : '中間左側';
-                } else if (column === 0) {
-                    position = row > 0 ? '中間上方' : '中間下方';
-                }
-            }
-
-            document.getElementById('originPosition').textContent = `原點位置：${position}`;
-        }
-
-        // 監聽行和列數值的變化
-        document.getElementById('rowNumber').addEventListener('input', updateOriginPosition);
-        document.getElementById('columnNumber').addEventListener('input', updateOriginPosition);
     </script>
 </body>
 </html>
