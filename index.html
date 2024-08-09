@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>抽籤程式</title>
+    <title>線上抽籤（課堂趣味版）</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC&family=Noto+Serif+TC:wght@200..900&display=swap');
 
@@ -176,12 +176,12 @@
 </head>
 <body>
     <div class="container">
-        <h1>抽籤程式</h1>
+        <h1>線上抽籤（課堂趣味版）</h1>
         <div class="form-group">
-            <label for="drawMode">選擇模式：</label>
+            <label for="drawMode">抽籤模式：</label>
             <select id="drawMode" onchange="toggleDrawMode()">
-                <option value="simple">普通抽籤</option>
-                <option value="normal">趣味抽籤</option>
+                <option value="common">普通抽籤</option>
+                <option value="fashion">趣味抽籤</option>
                 <option value="coordinate">座標抽籤</option>
             </select>
         </div>
@@ -195,10 +195,10 @@
         </div>
         <div class="form-group" id="totalNumbersGroup">
             <label for="totalNumbers">座號總數：</label>
-            <input type="number" id="totalNumbers" min="1">
+            <input type="number" id="totalNumbers" min="1" placeholder="最小值為 1">
         </div>
         <div class="form-group" id="absentNumbersGroup">
-            <label for="absentNumbers">請假與抽過座號（以逗號分隔）：</label>
+            <label for="absentNumbers">請假／已抽座號（以逗號分隔）：</label>
             <input type="text" id="absentNumbers" placeholder="例如：1, 2, 3">
         </div>
         <div class="form-group">
@@ -233,7 +233,7 @@
 
     <script>
         let bgMusic = "bg.mp3";
-        let stopSound = "end.mp3";
+        let stopSound = "stop.mp3";
         let bgMusicAudio = null;
         let drawInterval = null;
         let drawing = false;
@@ -333,7 +333,7 @@
                     return;
                 }
 
-                if (drawMode === "simple") {
+                if (drawMode === "common") {
                     playBgMusic();
                     document.getElementById('animation').style.display = 'block';
                     document.getElementById('drawButton').textContent = '停止抽籤';
@@ -361,7 +361,7 @@
                         }
                     }, 100);
                 } 
-                else if (drawMode === "normal") {
+                else if (drawMode === "fashion") {
                     playBgMusic();
                     document.getElementById('animation').style.display = 'block';
                     document.getElementById('drawButton').textContent = '停止抽籤';
@@ -374,12 +374,12 @@
                             const randomNumberIndex = Math.floor(Math.random() * availableNumbers.length);
                             lastDrawnNumber = availableNumbers[randomNumberIndex];
 
-                            const modes = ["大十字", "小十字", "大叉叉", "小叉叉", "九宮格", "正方形", "三角形"];
+                            const modes = ["大十字", "小十字", "大叉叉", "小叉叉", "九宮格", "正方形", "三角形", "全　班"];
                             const randomModeIndex = Math.floor(Math.random() * modes.length);
                             const coordinatePattern = modes[randomModeIndex];
 
                             const modalText = document.getElementById('modalText');
-                            modalText.innerHTML = `抽籤模式：${coordinatePattern}<br>中籤座號：${lastDrawnNumber}`;
+                            modalText.innerHTML = `指令模式：${coordinatePattern}<br>中籤座號：${lastDrawnNumber}`;
 
                             availableNumbers.splice(randomNumberIndex, 1); // 移除已抽出的號碼
 
@@ -411,7 +411,7 @@
                 drawing = true;
 
                 drawInterval = setInterval(() => {
-                    const modes = ["大十字", "小十字", "大叉叉", "小叉叉", "九宮格", "正方形", "三角形"];
+                    const modes = ["大十字", "小十字", "大叉叉", "小叉叉", "九宮格", "正方形", "三角形", "全　班"];
                     const randomModeIndex = Math.floor(Math.random() * modes.length);
                     const coordinatePattern = modes[randomModeIndex];
 
@@ -419,7 +419,7 @@
                     let y = Math.floor(Math.random() * column) + 1;
 
                     const modalText = document.getElementById('modalText');
-                    modalText.innerHTML = `抽籤模式：${coordinatePattern}<br>中籤座標：( ${x}, ${y} )`;
+                    modalText.innerHTML = `指令模式：${coordinatePattern}<br>中籤座標：( ${x}, ${y} )`;
                 }, 100);
             }
         }
