@@ -226,7 +226,6 @@
     <!-- 提示視窗 -->
     <div id="alertModal" class="modal">
         <div class="alert-content">
-            <div class="modal-title">提示</div>
             <div>號碼已全部使用，請重置號碼後再試。</div>
             <button class="alert-close" onclick="closeAlert()">確定</button>
         </div>
@@ -300,26 +299,39 @@
 
         function startDrawing() {
             const drawMode = document.getElementById('drawMode').value;
+            const totalNumbers = parseInt(document.getElementById('totalNumbers').value);
+
+            // 解析請假與抽過座號，並進行檢查
+            const absentNumbers = document.getElementById('absentNumbers').value
+                .split(',')
+                .map(Number)
+                .filter(n => !isNaN(n) && n > 0);
+
+            console.log("Total Numbers: ", totalNumbers);
+            console.log("Absent Numbers: ", absentNumbers);
+
+            // 比較請假座號與座號總數的長度
+            if (absentNumbers.length >= totalNumbers) {
+                showAlert(); // 如果請假座號的長度大於或等於座號總數，顯示提示
+                return;
+            }
+
+            let availableNumbers = [];
+            for (let i = 1; i <= totalNumbers; i++) {
+                if (!absentNumbers.includes(i)) {
+                    availableNumbers.push(i);
+                }
+            }
+
+            console.log("Available Numbers: ", availableNumbers);
+
+            // 檢查是否有可用的號碼，且確保 absentNumbers.length > 0 才顯示提示
+            if (availableNumbers.length === 0 && absentNumbers.length > 0) {
+                showAlert(); // 如果沒有可用的號碼且請假或抽過座號的長度大於 0，顯示提示
+                return;
+            }
 
             if(drawMode === "simple") {
-                const totalNumbers = parseInt(document.getElementById('totalNumbers').value);
-                const absentNumbers = document.getElementById('absentNumbers').value
-                    .split(',')
-                    .map(Number)
-                    .filter(n => !isNaN(n) && n > 0);
-
-                let availableNumbers = [];
-                for (let i = 1; i <= totalNumbers; i++) {
-                    if (!absentNumbers.includes(i)) {
-                        availableNumbers.push(i);
-                    }
-                }
-
-                if (availableNumbers.length === 0) {
-                    showAlert(); // 提示號碼全部使用
-                    return;
-                }
-
                 playBgMusic();
                 document.getElementById('animation').style.display = 'block';
                 document.getElementById('drawButton').textContent = '停止抽籤';
@@ -328,41 +340,26 @@
                 drawing = true;
 
                 drawInterval = setInterval(() => {
-                    const randomNumberIndex = Math.floor(Math.random() * availableNumbers.length);
-                    lastDrawnNumber = availableNumbers[randomNumberIndex];
+                    if (availableNumbers.length > 0) {
+                        const randomNumberIndex = Math.floor(Math.random() * availableNumbers.length);
+                        lastDrawnNumber = availableNumbers[randomNumberIndex];
 
-                    const modalText = document.getElementById('modalText');
-                    modalText.innerHTML = `中籤座號：${lastDrawnNumber}`;
+                        const modalText = document.getElementById('modalText');
+                        modalText.innerHTML = `中籤座號：${lastDrawnNumber}`;
 
-                    availableNumbers.splice(randomNumberIndex, 1);
+                        availableNumbers.splice(randomNumberIndex, 1); // 移除已抽出的號碼
 
-                    if (availableNumbers.length === 0) {
-                        clearInterval(drawInterval);
-                        showAlert(); // 提示號碼全部使用
-                        stopDrawing();
+                        // 檢查是否已經抽取完所有可用號碼
+                        if (availableNumbers.length === 0 && absentNumbers.length + availableNumbers.length >= totalNumbers) {
+                            clearInterval(drawInterval);
+                            stopDrawing();
+                            setTimeout(showAlert, 500); // 顯示提示視窗，加入短暫延遲避免過早觸發
+                            return;
+                        }
                     }
-
                 }, 100);
             } 
             else if (drawMode === "normal") {
-                const totalNumbers = parseInt(document.getElementById('totalNumbers').value);
-                const absentNumbers = document.getElementById('absentNumbers').value
-                    .split(',')
-                    .map(Number)
-                    .filter(n => !isNaN(n) && n > 0);
-
-                let availableNumbers = [];
-                for (let i = 1; i <= totalNumbers; i++) {
-                    if (!absentNumbers.includes(i)) {
-                        availableNumbers.push(i);
-                    }
-                }
-
-                if (availableNumbers.length === 0) {
-                    showAlert(); // 提示號碼全部使用
-                    return;
-                }
-
                 playBgMusic();
                 document.getElementById('animation').style.display = 'block';
                 document.getElementById('drawButton').textContent = '停止抽籤';
@@ -371,24 +368,27 @@
                 drawing = true;
 
                 drawInterval = setInterval(() => {
-                    const randomNumberIndex = Math.floor(Math.random() * availableNumbers.length);
-                    lastDrawnNumber = availableNumbers[randomNumberIndex];
+                    if (availableNumbers.length > 0) {
+                        const randomNumberIndex = Math.floor(Math.random() * availableNumbers.length);
+                        lastDrawnNumber = availableNumbers[randomNumberIndex];
 
-                    const modes = ["大十字", "小十字", "大叉叉", "小叉叉", "九宮格", "正方形", "三角形"];
-                    const randomModeIndex = Math.floor(Math.random() * modes.length);
-                    const coordinatePattern = modes[randomModeIndex];
+                        const modes = ["大十字", "小十字", "大叉叉", "小叉叉", "九宮格", "正方形", "三角形"];
+                        const randomModeIndex = Math.floor(Math.random() * modes.length);
+                        const coordinatePattern = modes[randomModeIndex];
 
-                    const modalText = document.getElementById('modalText');
-                    modalText.innerHTML = `抽籤模式：${coordinatePattern}<br>中籤座號：${lastDrawnNumber}`;
+                        const modalText = document.getElementById('modalText');
+                        modalText.innerHTML = `抽籤模式：${coordinatePattern}<br>中籤座號：${lastDrawnNumber}`;
 
-                    availableNumbers.splice(randomNumberIndex, 1);
+                        availableNumbers.splice(randomNumberIndex, 1); // 移除已抽出的號碼
 
-                    if (availableNumbers.length === 0) {
-                        clearInterval(drawInterval);
-                        showAlert(); // 提示號碼全部使用
-                        stopDrawing();
+                        // 檢查是否已經抽取完所有可用號碼
+                        if (availableNumbers.length === 0 && absentNumbers.length + availableNumbers.length >= totalNumbers) {
+                            clearInterval(drawInterval);
+                            stopDrawing();
+                            setTimeout(showAlert, 500); // 顯示提示視窗，加入短暫延遲避免過早觸發
+                            return;
+                        }
                     }
-
                 }, 100);
 
             } 
