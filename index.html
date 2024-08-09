@@ -58,6 +58,24 @@
         }
 
         button {
+            padding: 5px 10px; /* 調整為較小的填充 */
+            color: black; /* 修改字體顏色為黑色 */
+            background-color: #ADD8E6; /* 淺藍色背景 */
+            border: 1px solid #007bff; /* 可選：增加藍色邊框 */
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 14px; /* 調整字體大小 */
+            font-family: "Noto Sans TC", sans-serif;
+        }
+
+        #bgMusicButton, #stopSoundButton {
+            padding: 5px 10px; /* 小一點的按鈕尺寸 */
+            font-size: 14px; /* 更小的字體 */
+        }
+
+        /* 維持「開始抽籤」和「重置號碼」按鈕的原樣 */
+        #drawButton, .reset-button {
             width: 100%;
             padding: 10px;
             color: white;
@@ -133,6 +151,9 @@
             cursor: pointer;
             margin-top: 20px;
             font-family: "Noto Sans TC", sans-serif;
+            display: block;
+            margin-left: auto;
+            margin-right: auto; /* 水平置中 */
         }
 
         /* 新增的提示視窗樣式 */
@@ -171,6 +192,9 @@
             cursor: pointer;
             margin-top: 20px;
             font-family: "Noto Sans TC", sans-serif;
+            display: block;
+            margin-left: auto;
+            margin-right: auto; /* 水平置中 */
         }
     </style>
 </head>
@@ -373,16 +397,22 @@
         let drawing = false;
         let lastDrawnNumber = null;
 
-        document.getElementById('bgMusic').addEventListener('change', function(event) {
-            if (event.target.files[0]) {
-                bgMusic = URL.createObjectURL(event.target.files[0]);
-            }
+        document.getElementById('bgMusicButton').addEventListener('click', function() {
+            document.getElementById('bgMusicInput').click();
         });
 
-        document.getElementById('stopSound').addEventListener('change', function(event) {
-            if (event.target.files[0]) {
-                stopSound = URL.createObjectURL(event.target.files[0]);
-            }
+        document.getElementById('bgMusicInput').addEventListener('change', function(event) {
+            const fileName = event.target.files[0] ? event.target.files[0].name : '未選擇文件';
+            document.getElementById('bgMusicFilename').textContent = fileName;
+        });
+
+        document.getElementById('stopSoundButton').addEventListener('click', function() {
+            document.getElementById('stopSoundInput').click();
+        });
+
+        document.getElementById('stopSoundInput').addEventListener('change', function(event) {
+            const fileName = event.target.files[0] ? event.target.files[0].name : '未選擇文件';
+            document.getElementById('stopSoundFilename').textContent = fileName;
         });
 
         function playSound(sound) {
