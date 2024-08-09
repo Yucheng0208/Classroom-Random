@@ -238,7 +238,6 @@
         let drawInterval = null;
         let drawing = false;
         let lastDrawnNumber = null;
-        
 
         document.getElementById('bgMusic').addEventListener('change', function(event) {
             if (event.target.files[0]) {
@@ -314,7 +313,7 @@
                         availableNumbers.push(i);
                     }
                 }
-                
+
                 if (availableNumbers.length === 0) {
                     showAlert(); // 提示號碼全部使用
                     return;
@@ -336,8 +335,14 @@
 
                     availableNumbers.splice(randomNumberIndex, 1);
 
+                    if (availableNumbers.length === 0) {
+                        clearInterval(drawInterval);
+                        showAlert(); // 提示號碼全部使用
+                        stopDrawing();
+                    }
+
                 }, 100);
-            }
+            } 
             else if (drawMode === "normal") {
                 const totalNumbers = parseInt(document.getElementById('totalNumbers').value);
                 const absentNumbers = document.getElementById('absentNumbers').value
@@ -377,9 +382,16 @@
 
                     availableNumbers.splice(randomNumberIndex, 1);
 
+                    if (availableNumbers.length === 0) {
+                        clearInterval(drawInterval);
+                        showAlert(); // 提示號碼全部使用
+                        stopDrawing();
+                    }
+
                 }, 100);
 
-            } else if (drawMode === "coordinate") {
+            } 
+            else if (drawMode === "coordinate") {
                 const row = parseInt(document.getElementById('rowNumber').value);
                 const column = parseInt(document.getElementById('columnNumber').value);
 
