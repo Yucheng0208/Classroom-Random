@@ -134,6 +134,44 @@
             margin-top: 20px;
             font-family: "Noto Sans TC", sans-serif;
         }
+
+        /* 新增的提示視窗樣式 */
+        #alertModal {
+            display: none;
+            position: fixed;
+            z-index: 2;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .alert-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 24px;
+            max-width: 80%;
+            margin: auto;
+            font-family: "Noto Serif TC", serif;
+            font-weight: 400;
+        }
+
+        .alert-close {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-family: "Noto Sans TC", sans-serif;
+        }
     </style>
 </head>
 <body>
@@ -176,11 +214,20 @@
         <div id="animation" class="animation">抽籤中...</div>
     </div>
 
+    <!-- 結果視窗 -->
     <div id="resultModal" class="modal">
         <div class="modal-content">
             <div class="modal-title">抽籤結果</div>
             <div id="modalText"></div>
             <button class="close" onclick="closeModal()">關閉視窗</button>
+        </div>
+    </div>
+
+    <!-- 提示視窗 -->
+    <div id="alertModal" class="modal">
+        <div class="alert-content">
+            <div>號碼已全部使用，請重置號碼後再試。</div>
+            <button class="alert-close" onclick="closeAlert()">確定</button>
         </div>
     </div>
 
@@ -253,14 +300,7 @@
         function startDrawing() {
             const drawMode = document.getElementById('drawMode').value;
 
-            if (drawMode === "simple") {
-                playBgMusic();
-                document.getElementById('animation').style.display = 'block';
-                document.getElementById('drawButton').textContent = '停止抽籤';
-                document.getElementById('drawButton').classList.remove('start-button');
-                document.getElementById('drawButton').classList.add('stop-button');
-                drawing = true;
-
+            if(drawMode === "simple") {
                 const totalNumbers = parseInt(document.getElementById('totalNumbers').value);
                 const absentNumbers = document.getElementById('absentNumbers').value
                     .split(',')
@@ -275,25 +315,20 @@
                 }
 
                 if (availableNumbers.length === 0) {
-                    alert('沒有可用的座號可供抽取。');
-                    stopDrawing();
+                    showAlert(); // 提示號碼全部使用
                     return;
                 }
 
-                drawInterval = setInterval(() => {
-                    if (availableNumbers.length === 0) {
-                        stopDrawing();
-                        return;
-                    }
+                playBgMusic();
+                document.getElementById('animation').style.display = 'block';
+                document.getElementById('drawButton').textContent = '停止抽籤';
+                document.getElementById('drawButton').classList.remove('start-button');
+                document.getElementById('drawButton').classList.add('stop-button');
+                drawing = true;
 
+                drawInterval = setInterval(() => {
                     const randomNumberIndex = Math.floor(Math.random() * availableNumbers.length);
                     lastDrawnNumber = availableNumbers[randomNumberIndex];
-
-                    if (typeof lastDrawnNumber === 'undefined' || lastDrawnNumber === null || lastDrawnNumber <= 0) {
-                        alert('無效的座號抽取結果，請檢查輸入');
-                        stopDrawing();
-                        return;
-                    }
 
                     const modalText = document.getElementById('modalText');
                     modalText.innerHTML = `中籤座號：${lastDrawnNumber}`;
@@ -301,15 +336,8 @@
                     availableNumbers.splice(randomNumberIndex, 1);
 
                 }, 100);
-
-            } else if (drawMode === "normal") {
-                playBgMusic();
-                document.getElementById('animation').style.display = 'block';
-                document.getElementById('drawButton').textContent = '停止抽籤';
-                document.getElementById('drawButton').classList.remove('start-button');
-                document.getElementById('drawButton').classList.add('stop-button');
-                drawing = true;
-
+            }
+            else if (drawMode === "normal") {
                 const totalNumbers = parseInt(document.getElementById('totalNumbers').value);
                 const absentNumbers = document.getElementById('absentNumbers').value
                     .split(',')
@@ -324,25 +352,20 @@
                 }
 
                 if (availableNumbers.length === 0) {
-                    alert('沒有可用的座號可供抽取。');
-                    stopDrawing();
+                    showAlert(); // 提示號碼全部使用
                     return;
                 }
 
-                drawInterval = setInterval(() => {
-                    if (availableNumbers.length === 0) {
-                        stopDrawing();
-                        return;
-                    }
+                playBgMusic();
+                document.getElementById('animation').style.display = 'block';
+                document.getElementById('drawButton').textContent = '停止抽籤';
+                document.getElementById('drawButton').classList.remove('start-button');
+                document.getElementById('drawButton').classList.add('stop-button');
+                drawing = true;
 
+                drawInterval = setInterval(() => {
                     const randomNumberIndex = Math.floor(Math.random() * availableNumbers.length);
                     lastDrawnNumber = availableNumbers[randomNumberIndex];
-
-                    if (typeof lastDrawnNumber === 'undefined' || lastDrawnNumber === null || lastDrawnNumber <= 0) {
-                        alert('無效的座號抽取結果，請檢查輸入');
-                        stopDrawing();
-                        return;
-                    }
 
                     const modes = ["大十字", "小十字", "大叉叉", "小叉叉", "九宮格", "正方形", "三角形"];
                     const randomModeIndex = Math.floor(Math.random() * modes.length);
@@ -354,7 +377,6 @@
                     availableNumbers.splice(randomNumberIndex, 1);
 
                 }, 100);
-
 
             } else if (drawMode === "coordinate") {
                 const row = parseInt(document.getElementById('rowNumber').value);
@@ -407,13 +429,23 @@
         }
 
         function closeModal() {
-            if (lastDrawnNumber !== null) {
+            /*if (lastDrawnNumber !== null) {
                 const absentNumbers = document.getElementById('absentNumbers').value.split(',').map(Number).filter(n => !isNaN(n) && n > 0);
                 absentNumbers.push(lastDrawnNumber);
                 document.getElementById('absentNumbers').value = absentNumbers.join(', ');
                 lastDrawnNumber = null;
-            }
+            }*/
             document.getElementById('resultModal').style.display = 'none';
+        }
+
+        // 顯示提示視窗
+        function showAlert() {
+            document.getElementById('alertModal').style.display = 'flex';
+        }
+
+        // 關閉提示視窗
+        function closeAlert() {
+            document.getElementById('alertModal').style.display = 'none';
         }
     </script>
 </body>
