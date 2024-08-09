@@ -238,6 +238,7 @@
         let drawInterval = null;
         let drawing = false;
         let lastDrawnNumber = null;
+        
 
         document.getElementById('bgMusic').addEventListener('change', function(event) {
             if (event.target.files[0]) {
@@ -313,7 +314,7 @@
                         availableNumbers.push(i);
                     }
                 }
-
+                
                 if (availableNumbers.length === 0) {
                     showAlert(); // 提示號碼全部使用
                     return;
@@ -429,12 +430,12 @@
         }
 
         function closeModal() {
-            /*if (lastDrawnNumber !== null) {
+            if (lastDrawnNumber !== null) {
                 const absentNumbers = document.getElementById('absentNumbers').value.split(',').map(Number).filter(n => !isNaN(n) && n > 0);
                 absentNumbers.push(lastDrawnNumber);
                 document.getElementById('absentNumbers').value = absentNumbers.join(', ');
                 lastDrawnNumber = null;
-            }*/
+            }
             document.getElementById('resultModal').style.display = 'none';
         }
 
