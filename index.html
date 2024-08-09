@@ -285,6 +285,8 @@
                 totalNumbersLabel: "座號總數：",
                 absentNumbersLabel: "請假／已抽座號（以逗號分隔）：",
                 drawButton: "開始抽籤",
+                stopButton: "停止抽籤",
+                drawResult: "中籤座號：",  // 中籤座號翻譯
                 resetButton: "重置號碼",
                 alertText: "號碼已全部使用，請重置號碼後再試。",
                 closeButton: "關閉視窗",
@@ -308,6 +310,8 @@
                 totalNumbersLabel: "座号总数：",
                 absentNumbersLabel: "请假／已抽座号（以逗号分隔）：",
                 drawButton: "开始抽签",
+                stopButton: "停止抽签",
+                drawResult: "中签座号：",  // 中签座号翻译
                 resetButton: "重置号码",
                 alertText: "号码已全部使用，请重置号码后再试。",
                 closeButton: "关闭窗口",
@@ -325,13 +329,14 @@
             en: {
                 title: "Online Drawing (Classroom Fun Version)",
                 drawModeLabel: "Draw Mode:",
-                drawModeLabel: "Draw Mode:",
                 commonOption: "Common Draw",
                 fashionOption: "Fun Draw",
                 coordinateOption: "Coordinate Draw",
                 totalNumbersLabel: "Total Numbers:",
                 absentNumbersLabel: "Absent/Drawn Numbers (comma-separated):",
                 drawButton: "Start Drawing",
+                stopButton: "Stop Drawing",
+                drawResult: "Drawn Number:",  // Drawn number translation
                 resetButton: "Reset Numbers",
                 alertText: "All numbers have been used, please reset numbers and try again.",
                 closeButton: "Close Window",
@@ -343,7 +348,6 @@
                 modalTitle: "Draw Result",
                 totalNumbersPlaceholder: "Minimum value is 1",
                 absentNumbersPlaceholder: "e.g., 1, 2, 3",
-
                 browseButton: "Browse",
                 noFileSelected: "No file selected"
             }
@@ -366,7 +370,7 @@
             document.querySelector('label[for="columnNumber"]').textContent = translations[language].columnNumberLabel;
             document.querySelector('label[for="bgMusic"]').textContent = translations[language].bgMusicLabel;
             document.querySelector('label[for="stopSound"]').textContent = translations[language].stopSoundLabel;
-            document.getElementById('drawButton').textContent = translations[language].drawButton;
+            document.getElementById('drawButton').textContent = drawing ? translations[language].stopButton : translations[language].drawButton; // 根據狀態設置按鈕文本
             document.querySelector('.reset-button').textContent = translations[language].resetButton;
             document.querySelector('.alert-content div').textContent = translations[language].alertText;
             document.querySelector('.close').textContent = translations[language].closeButton;
@@ -454,11 +458,13 @@
         }
 
         function toggleDraw() {
+            const language = document.getElementById('languageSelector').value;
             if (drawing) {
                 stopDrawing();
             } else {
                 startDrawing();
             }
+            document.getElementById('drawButton').textContent = drawing ? translations[language].stopButton : translations[language].drawButton;
         }
 
         function startDrawing() {
@@ -497,10 +503,12 @@
                     return;
                 }
 
+                const language = document.getElementById('languageSelector').value;
+
                 if (drawMode === "common") {
                     playBgMusic();
                     document.getElementById('animation').style.display = 'block';
-                    document.getElementById('drawButton').textContent = '停止抽籤';
+                    document.getElementById('drawButton').textContent = translations[language].stopButton;
                     document.getElementById('drawButton').classList.remove('start-button');
                     document.getElementById('drawButton').classList.add('stop-button');
                     drawing = true;
@@ -511,7 +519,7 @@
                             lastDrawnNumber = availableNumbers[randomNumberIndex];
 
                             const modalText = document.getElementById('modalText');
-                            modalText.innerHTML = `中籤座號：${lastDrawnNumber}`;
+                            modalText.innerHTML = `${translations[language].drawResult} ${lastDrawnNumber}`;
 
                             availableNumbers.splice(randomNumberIndex, 1); // 移除已抽出的號碼
 
@@ -528,7 +536,7 @@
                 else if (drawMode === "fashion") {
                     playBgMusic();
                     document.getElementById('animation').style.display = 'block';
-                    document.getElementById('drawButton').textContent = '停止抽籤';
+                    document.getElementById('drawButton').textContent = translations[language].stopButton;
                     document.getElementById('drawButton').classList.remove('start-button');
                     document.getElementById('drawButton').classList.add('stop-button');
                     drawing = true;
@@ -543,7 +551,7 @@
                             const coordinatePattern = modes[randomModeIndex];
 
                             const modalText = document.getElementById('modalText');
-                            modalText.innerHTML = `指令模式：${coordinatePattern}<br>中籤座號：${lastDrawnNumber}`;
+                            modalText.innerHTML = `${translations[language].drawResult} ${lastDrawnNumber}<br>指令模式：${coordinatePattern}`;
 
                             availableNumbers.splice(randomNumberIndex, 1); // 移除已抽出的號碼
 
@@ -596,7 +604,8 @@
             }
             document.getElementById('animation').style.display = 'none';
             const drawButton = document.getElementById('drawButton');
-            drawButton.textContent = '開始抽籤';
+            const language = document.getElementById('languageSelector').value;
+            drawButton.textContent = translations[language].drawButton;
             drawButton.classList.remove('stop-button');
             drawButton.classList.add('start-button');
             drawing = false;
