@@ -286,7 +286,8 @@
                 absentNumbersLabel: "請假／已抽座號（以逗號分隔）：",
                 drawButton: "開始抽籤",
                 stopButton: "停止抽籤",
-                drawResult: "中籤座號：",  // 中籤座號翻譯
+                drawResult: "中籤座號：",
+                commandMode: "指令模式：",
                 resetButton: "重置號碼",
                 alertText: "號碼已全部使用，請重置號碼後再試。",
                 closeButton: "關閉視窗",
@@ -299,7 +300,8 @@
                 totalNumbersPlaceholder: "最小值為 1",
                 absentNumbersPlaceholder: "例如：1, 2, 3",
                 browseButton: "瀏覽",
-                noFileSelected: "未選擇文件"
+                noFileSelected: "未選擇文件",
+                modes: ["大十字", "小十字", "大叉叉", "小叉叉", "九宮格", "正方形", "三角形", "全　班"]
             },
             zh_CN: {
                 title: "线上抽签（课堂趣味版）",
@@ -311,7 +313,8 @@
                 absentNumbersLabel: "请假／已抽座号（以逗号分隔）：",
                 drawButton: "开始抽签",
                 stopButton: "停止抽签",
-                drawResult: "中签座号：",  // 中签座号翻译
+                drawResult: "中签座号：",
+                commandMode: "指令模式：",
                 resetButton: "重置号码",
                 alertText: "号码已全部使用，请重置号码后再试。",
                 closeButton: "关闭窗口",
@@ -324,10 +327,11 @@
                 totalNumbersPlaceholder: "最小值为 1",
                 absentNumbersPlaceholder: "例如：1, 2, 3",
                 browseButton: "浏览",
-                noFileSelected: "未选择文件"
+                noFileSelected: "未选择文件",
+                modes: ["大十字", "小十字", "大叉叉", "小叉叉", "九宫格", "正方形", "三角形", "全　班"]
             },
             en: {
-                title: "Online Drawing (Classroom Fun Version)",
+                title: "Online Drawing\(Classroom Fun Version)",
                 drawModeLabel: "Draw Mode:",
                 commonOption: "Common Draw",
                 fashionOption: "Fun Draw",
@@ -336,7 +340,8 @@
                 absentNumbersLabel: "Absent/Drawn Numbers (comma-separated):",
                 drawButton: "Start Drawing",
                 stopButton: "Stop Drawing",
-                drawResult: "Drawn Number:",  // Drawn number translation
+                drawResult: "Drawn Number:",
+                commandMode: "Command Mode:",
                 resetButton: "Reset Numbers",
                 alertText: "All numbers have been used, please reset numbers and try again.",
                 closeButton: "Close Window",
@@ -349,7 +354,8 @@
                 totalNumbersPlaceholder: "Minimum value is 1",
                 absentNumbersPlaceholder: "e.g., 1, 2, 3",
                 browseButton: "Browse",
-                noFileSelected: "No file selected"
+                noFileSelected: "No file selected",
+                modes: ["Large Cross", "Small Cross", "Large X", "Small X", "Nine Grid", "Square", "Triangle", "Whole Class"]
             }
         };
 
@@ -370,7 +376,7 @@
             document.querySelector('label[for="columnNumber"]').textContent = translations[language].columnNumberLabel;
             document.querySelector('label[for="bgMusic"]').textContent = translations[language].bgMusicLabel;
             document.querySelector('label[for="stopSound"]').textContent = translations[language].stopSoundLabel;
-            document.getElementById('drawButton').textContent = drawing ? translations[language].stopButton : translations[language].drawButton; // 根據狀態設置按鈕文本
+            document.getElementById('drawButton').textContent = drawing ? translations[language].stopButton : translations[language].drawButton;
             document.querySelector('.reset-button').textContent = translations[language].resetButton;
             document.querySelector('.alert-content div').textContent = translations[language].alertText;
             document.querySelector('.close').textContent = translations[language].closeButton;
@@ -546,12 +552,12 @@
                             const randomNumberIndex = Math.floor(Math.random() * availableNumbers.length);
                             lastDrawnNumber = availableNumbers[randomNumberIndex];
 
-                            const modes = ["大十字", "小十字", "大叉叉", "小叉叉", "九宮格", "正方形", "三角形", "全　班"];
+                            const modes = translations[language].modes;
                             const randomModeIndex = Math.floor(Math.random() * modes.length);
                             const coordinatePattern = modes[randomModeIndex];
 
                             const modalText = document.getElementById('modalText');
-                            modalText.innerHTML = `${translations[language].drawResult} ${lastDrawnNumber}<br>指令模式：${coordinatePattern}`;
+                            modalText.innerHTML = `${translations[language].drawResult} ${lastDrawnNumber}<br>${translations[language].commandMode} ${coordinatePattern}`;
 
                             availableNumbers.splice(randomNumberIndex, 1); // 移除已抽出的號碼
 
@@ -583,7 +589,7 @@
                 drawing = true;
 
                 drawInterval = setInterval(() => {
-                    const modes = ["大十字", "小十字", "大叉叉", "小叉叉", "九宮格", "正方形", "三角形", "全　班"];
+                    const modes = translations[language].modes;
                     const randomModeIndex = Math.floor(Math.random() * modes.length);
                     const coordinatePattern = modes[randomModeIndex];
 
@@ -591,7 +597,7 @@
                     let y = Math.floor(Math.random() * column) + 1;
 
                     const modalText = document.getElementById('modalText');
-                    modalText.innerHTML = `指令模式：${coordinatePattern}<br>中籤座標：( ${x}, ${y} )`;
+                    modalText.innerHTML = `${translations[language].commandMode} ${coordinatePattern}<br>中籤座標：( ${x}, ${y} )`;
                 }, 100);
             }
         }
