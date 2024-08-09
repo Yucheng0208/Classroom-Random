@@ -165,29 +165,29 @@
         <h1>抽籤程式</h1>
         <div class="form-group">
             <label for="drawMode">選擇模式：</label>
-            <select id="drawMode">
+            <select id="drawMode" onchange="toggleDrawMode()">
                 <option value="simple">普通抽籤</option>
                 <option value="normal">趣味抽籤</option>
                 <option value="coordinate">座標抽籤</option>
             </select>
         </div>
-        <div class="form-group">
+        <div class="form-group" id="totalNumbersGroup">
             <label for="totalNumbers">座號總數：</label>
             <input type="number" id="totalNumbers" min="1">
         </div>
-        <div class="form-group">
+        <div class="form-group" id="absentNumbersGroup">
             <label for="absentNumbers">請假與抽過座號（以逗號分隔）：</label>
             <input type="text" id="absentNumbers" placeholder="例如：1, 2, 3">
         </div>
-        <div class="form-group">
+        <div class="form-group" id="rowNumberGroup" style="display: none;">
             <label for="rowNumber">行數（可以是負值）：</label>
             <input type="number" id="rowNumber">
         </div>
-        <div class="form-group">
+        <div class="form-group" id="columnNumberGroup" style="display: none;">
             <label for="columnNumber">列數（可以是負值）：</label>
             <input type="number" id="columnNumber">
         </div>
-        <div id="originPosition" style="margin-top: 10px; font-weight: bold;">原點位置：未設定</div>
+        <div id="originPosition" style="margin-top: 10px; font-weight: bold; display: none;">原點位置：未設定</div>
         <div class="form-group">
             <label for="bgMusic">抽籤音效：</label>
             <input type="file" id="bgMusic" accept="audio/*">
@@ -246,6 +246,29 @@
             }
         }
 
+        function toggleDrawMode() {
+            const drawMode = document.getElementById('drawMode').value;
+            const totalNumbersGroup = document.getElementById('totalNumbersGroup');
+            const absentNumbersGroup = document.getElementById('absentNumbersGroup');
+            const rowNumberGroup = document.getElementById('rowNumberGroup');
+            const columnNumberGroup = document.getElementById('columnNumberGroup');
+            const originPosition = document.getElementById('originPosition');
+
+            if (drawMode === "coordinate") {
+                totalNumbersGroup.style.display = 'none';
+                absentNumbersGroup.style.display = 'none';
+                rowNumberGroup.style.display = 'block';
+                columnNumberGroup.style.display = 'block';
+                originPosition.style.display = 'block';
+            } else {
+                totalNumbersGroup.style.display = 'block';
+                absentNumbersGroup.style.display = 'block';
+                rowNumberGroup.style.display = 'none';
+                columnNumberGroup.style.display = 'none';
+                originPosition.style.display = 'none';
+            }
+        }
+
         function toggleDraw() {
             if (drawing) {
                 stopDrawing();
@@ -255,41 +278,26 @@
         }
 
         function startDrawing() {
-            const container = document.querySelector('.container');
-            container.style.animation = 'shake 0.5s';
-            container.style.animationIterationCount = 'infinite';
-
-            const modes = ["大十字", "小十字", "大叉叉", "小叉叉", "九宮格", "正方形", "三角形"];
-            const totalNumbers = parseInt(document.getElementById('totalNumbers').value);
-            const absentNumbers = document.getElementById('absentNumbers').value.split(',').map(Number).filter(n => !isNaN(n));
-            const animationElement = document.getElementById('animation');
-            const drawButton = document.getElementById('drawButton');
             const drawMode = document.getElementById('drawMode').value;
-
-            if (!totalNumbers || totalNumbers <= 0) {
-                alert('請輸入有效的座號總數。');
-                return;
-            }
-
-            let availableNumbers = [];
-            for (let i = 1; i <= totalNumbers; i++) {
-                if (!absentNumbers.includes(i)) {
-                    availableNumbers.push(i);
-                }
-            }
-
-            if (availableNumbers.length === 0) {
-                alert('沒有可用的座號。');
-                return;
-            }
 
             if (drawMode === "normal") {
                 playBgMusic();
-                animationElement.style.display = 'block';
-                drawButton.textContent = '停止抽籤';
-                drawButton.classList.remove('start-button');
-                drawButton.classList.add('stop-button');
+                document.getElementById('animation').style.display = 'block';
+                document.getElementById('drawButton').textContent = '停止抽籤';
+                document.getElementById('drawButton').classList.remove('start-button');
+                document.getElementById('drawButton').classList.add('stop-button');
                 drawing = true;
+
+                const modes = ["大十字", "小十字", "大叉叉", "小叉叉", "九宮格", "正方形", "三角形"];
+                const totalNumbers = parseInt(document.getElementById('totalNumbers').value);
+                const absentNumbers = document.getElementById('absentNumbers').value.split(',').map(Number).filter(n => !isNaN(n));
+                let availableNumbers = [];
+
+                for (let i = 1; i <= totalNumbers; i++) {
+                    if (!absentNumbers.includes(i)) {
+                        availableNumbers.push(i);
+                    }
+                }
 
                 drawInterval = setInterval(() => {
                     const randomModeIndex = Math.floor(Math.random() * modes.length);
@@ -300,14 +308,16 @@
                     const modalText = document.getElementById('modalText');
                     modalText.innerHTML = `抽籤模式：${drawnMode}<br>中籤座號：${drawnNumber}`;
                 }, 100);
-            } else {
-                const randomModeIndex = Math.floor(Math.random() * modes.length);
-                const randomNumberIndex = Math.floor(Math.random() * availableNumbers.length);
-                const drawnMode = modes[randomModeIndex];
-                const drawnNumber = availableNumbers[randomNumberIndex];
+            } else if (drawMode === "coordinate") {
+                const row = parseInt(document.getElementById('rowNumber').value);
+                const column = parseInt(document.getElementById('columnNumber').value);
 
-                const modalText = document.getElementById('modalText');
-                modalText.innerHTML = `中籤座號：${drawnNumber}`;
+                if (isNaN(row) || isNaN(column)) {
+                    alert('請輸入有效的行列數值。');
+                    return;
+                }
+
+                updateOriginPosition();
                 stopDrawing();
             }
         }
