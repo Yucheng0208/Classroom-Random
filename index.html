@@ -66,7 +66,7 @@
         }
 
         .reset-button {
-            background-color: #007bff; /* 藍色背景 */
+            background-color: #007bff;
         }
 
         #animation {
@@ -131,10 +131,11 @@
     <div class="container">
         <h1>抽籤程式</h1>
         <div class="form-group">
-            <label for="drawMode">選擇抽籤模式：</label>
+            <label for="drawMode">選擇模式：</label>
             <select id="drawMode">
-                <option value="normal">正常抽籤</option>
-                <option value="simple">單純抽籤</option>
+                <option value="simple">普通抽籤</option>
+                <option value="normal">趣味抽籤</option>
+                <option value="normal">座標抽籤</option>
             </select>
         </div>
         <div class="form-group">
@@ -142,19 +143,19 @@
             <input type="number" id="totalNumbers" min="1">
         </div>
         <div class="form-group">
-            <label for="absentNumbers">請假號碼（以逗號分隔）：</label>
+            <label for="absentNumbers">請假與抽過座號（以逗號分隔）：</label>
             <input type="text" id="absentNumbers" placeholder="例如：1, 2, 3">
         </div>
         <div class="form-group">
-            <label for="bgMusic">上傳背景音樂：</label>
+            <label for="bgMusic">抽籤音效：</label>
             <input type="file" id="bgMusic" accept="audio/*">
         </div>
         <div class="form-group">
-            <label for="stopSound">上傳結束音效：</label>
+            <label for="stopSound">暫停音效：</label>
             <input type="file" id="stopSound" accept="audio/*">
         </div>
         <button id="drawButton" class="start-button" onclick="toggleDraw()">開始抽籤</button>
-        <button class="reset-button" onclick="resetAbsentNumbers()">重置請假號碼</button>
+        <button class="reset-button" onclick="resetAbsentNumbers()">重置號碼</button>
         <div id="animation" class="animation">抽籤中...</div>
         <div id="result"></div>
     </div>
@@ -262,7 +263,8 @@
                 const drawnMode = modes[randomModeIndex];
                 const drawnNumber = availableNumbers[randomNumberIndex];
 
-                resultElement.innerHTML = `抽籤模式：${drawnMode}<br>抽中的座號：${drawnNumber}`;
+                //resultElement.innerHTML = `抽籤模式：${drawnMode}<br>抽中的座號：${drawnNumber}`;
+                resultElement.innerHTML = `抽中的座號：${drawnNumber}`;
                 stopDrawing();
             }
         }
