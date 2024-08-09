@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>線上抽籤（課堂趣味版）</title>
+    <title>Online Drawing (Classroom Fun Version)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC&family=Noto+Serif+TC:wght@200..900&display=swap');
 
@@ -38,6 +38,7 @@
             font-size: 24px;
             font-family: "Noto Serif TC", serif;
             font-weight: 700;
+            white-space: normal; /* 讓標題內容自動換行 */
         }
 
         .form-group {
@@ -58,20 +59,15 @@
         }
 
         button {
-            padding: 5px 10px; /* 調整為較小的填充 */
-            color: black; /* 修改字體顏色為黑色 */
-            background-color: #ADD8E6; /* 淺藍色背景 */
-            border: 1px solid #007bff; /* 可選：增加藍色邊框 */
+            padding: 5px 10px;
+            color: black;
+            background-color: #ADD8E6;
+            border: 1px solid #007bff;
             border-radius: 5px;
             cursor: pointer;
             margin-top: 10px;
-            font-size: 14px; /* 調整字體大小 */
+            font-size: 14px;
             font-family: "Noto Sans TC", sans-serif;
-        }
-
-        #bgMusicButton, #stopSoundButton {
-            padding: 5px 10px; /* 小一點的按鈕尺寸 */
-            font-size: 14px; /* 更小的字體 */
         }
 
         /* 維持「開始抽籤」和「重置號碼」按鈕的原樣 */
@@ -200,7 +196,10 @@
 </head>
 <body>
     <div class="container">
-        <h1>線上抽籤（課堂趣味版）</h1>
+        <h1>
+            <span id="titlePart1">Online Drawing</span><br>
+            <span id="titlePart2">(Classroom Fun Version)</span>
+        </h1>
         
         <div class="form-group">
             <label for="languageSelector">Language/语言/語言：</label>
@@ -277,7 +276,8 @@
         // 翻譯文字
         const translations = {
             zh_TW: {
-                title: "線上抽籤（課堂趣味版）",
+                title: "線上抽籤",
+                subtitle: "（課堂趣味版）",
                 drawModeLabel: "抽籤模式：",
                 commonOption: "普通抽籤",
                 fashionOption: "趣味抽籤",
@@ -304,7 +304,8 @@
                 modes: ["大十字", "小十字", "大叉叉", "小叉叉", "九宮格", "正方形", "三角形", "全　班"]
             },
             zh_CN: {
-                title: "线上抽签（课堂趣味版）",
+                title: "线上抽签",
+                subtitle: "（课堂趣味版）",
                 drawModeLabel: "抽签模式：",
                 commonOption: "普通抽签",
                 fashionOption: "趣味抽签",
@@ -331,7 +332,8 @@
                 modes: ["大十字", "小十字", "大叉叉", "小叉叉", "九宫格", "正方形", "三角形", "全　班"]
             },
             en: {
-                title: "Online Drawing\(Classroom Fun Version)",
+                title: "Online Drawing",
+                subtitle: "(Classroom Fun Version)",
                 drawModeLabel: "Draw Mode:",
                 commonOption: "Common Draw",
                 fashionOption: "Fun Draw",
@@ -365,7 +367,9 @@
         });
 
         function updateLanguage(language) {
-            document.querySelector('h1').textContent = translations[language].title;
+            document.querySelector('#titlePart1').textContent = translations[language].title;
+            document.querySelector('#titlePart2').textContent = translations[language].subtitle;
+            document.title = translations[language].title + " " + translations[language].subtitle;  // 更新 title 標籤的內容
             document.querySelector('label[for="drawMode"]').textContent = translations[language].drawModeLabel;
             document.getElementById('drawMode').options[0].textContent = translations[language].commonOption;
             document.getElementById('drawMode').options[1].textContent = translations[language].fashionOption;
