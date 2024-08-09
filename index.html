@@ -151,7 +151,7 @@
             <select id="drawMode">
                 <option value="simple">普通抽籤</option>
                 <option value="normal">趣味抽籤</option>
-                <option value="normal">座標抽籤</option>
+                <option value="coordinate">座標抽籤</option>
             </select>
         </div>
         <div class="form-group">
@@ -173,7 +173,6 @@
         <button id="drawButton" class="start-button" onclick="toggleDraw()">開始抽籤</button>
         <button class="reset-button" onclick="resetAbsentNumbers()">重置號碼</button>
         <div id="animation" class="animation">抽籤中...</div>
-        <div id="result"></div>
     </div>
 
     <div id="resultModal" class="modal">
@@ -237,13 +236,12 @@
             const modes = ["大十字", "小十字", "大叉叉", "小叉叉", "九宮格", "正方形", "三角形"];
             const totalNumbers = parseInt(document.getElementById('totalNumbers').value);
             const absentNumbers = document.getElementById('absentNumbers').value.split(',').map(Number).filter(n => !isNaN(n));
-            const resultElement = document.getElementById('result');
             const animationElement = document.getElementById('animation');
             const drawButton = document.getElementById('drawButton');
             const drawMode = document.getElementById('drawMode').value;
 
             if (!totalNumbers || totalNumbers <= 0) {
-                resultElement.innerHTML = '請輸入有效的座號總數。';
+                alert('請輸入有效的座號總數。');
                 return;
             }
 
@@ -255,7 +253,7 @@
             }
 
             if (availableNumbers.length === 0) {
-                resultElement.innerHTML = '沒有可用的座號。';
+                alert('沒有可用的座號。');
                 return;
             }
 
@@ -273,7 +271,9 @@
                     const drawnMode = modes[randomModeIndex];
                     const drawnNumber = availableNumbers[randomNumberIndex];
 
-                    resultElement.innerHTML = `抽籤模式：${drawnMode}<br>中籤座號：${drawnNumber}`;
+                    // 將結果顯示在彈出視窗中
+                    const modalText = document.getElementById('modalText');
+                    modalText.innerHTML = `抽籤模式：${drawnMode}<br>中籤座號：${drawnNumber}`;
                 }, 100);
             } else {
                 const randomModeIndex = Math.floor(Math.random() * modes.length);
@@ -281,7 +281,8 @@
                 const drawnMode = modes[randomModeIndex];
                 const drawnNumber = availableNumbers[randomNumberIndex];
 
-                resultElement.innerHTML = `中籤座號：${drawnNumber}`;
+                const modalText = document.getElementById('modalText');
+                modalText.innerHTML = `中籤座號：${drawnNumber}`;
                 stopDrawing();
             }
         }
@@ -302,13 +303,10 @@
             drawButton.classList.add('start-button');
             drawing = false;
 
-            const resultElement = document.getElementById('result');
-            const resultText = resultElement.innerHTML;
-            const modalText = document.getElementById('modalText');
-            modalText.innerHTML = resultText;
             document.getElementById('resultModal').style.display = 'flex';
 
-            const drawnNumber = parseInt(resultText.match(/抽中的座號：(\d+)/)[1]);
+            const modalText = document.getElementById('modalText').innerHTML;
+            const drawnNumber = parseInt(modalText.match(/中籤座號：(\d+)/)[1]);
             const absentNumbers = document.getElementById('absentNumbers').value.split(',').map(Number).filter(n => !isNaN(n));
             absentNumbers.push(drawnNumber);
             document.getElementById('absentNumbers').value = absentNumbers.join(', ');
