@@ -177,6 +177,16 @@
 <body>
     <div class="container">
         <h1>線上抽籤（課堂趣味版）</h1>
+        
+        <div class="form-group">
+            <label for="languageSelector">Language/语言/語言：</label>
+            <select id="languageSelector">
+                <option value="zh_TW">繁體中文 (台灣)</option>
+                <option value="zh_CN">简体中文</option>
+                <option value="en">English</option>
+            </select>
+        </div>
+        
         <div class="form-group">
             <label for="drawMode">抽籤模式：</label>
             <select id="drawMode" onchange="toggleDrawMode()">
@@ -203,11 +213,19 @@
         </div>
         <div class="form-group">
             <label for="bgMusic">抽籤音效：</label>
-            <input type="file" id="bgMusic" accept="audio/*">
+            <div class="custom-file-input">
+                <button type="button" id="bgMusicButton">瀏覽</button>
+                <span id="bgMusicFilename">未選擇文件</span>
+                <input type="file" id="bgMusicInput" accept="audio/*" style="display:none;">
+            </div>
         </div>
         <div class="form-group">
             <label for="stopSound">暫停音效：</label>
-            <input type="file" id="stopSound" accept="audio/*">
+            <div class="custom-file-input">
+                <button type="button" id="stopSoundButton">瀏覽</button>
+                <span id="stopSoundFilename">未選擇文件</span>
+                <input type="file" id="stopSoundInput" accept="audio/*" style="display:none;">
+            </div>
         </div>
         <button id="drawButton" class="start-button" onclick="toggleDraw()">開始抽籤</button>
         <button class="reset-button" onclick="resetAbsentNumbers()">重置號碼</button>
@@ -232,6 +250,122 @@
     </div>
 
     <script>
+        // 翻譯文字
+        const translations = {
+            zh_TW: {
+                title: "線上抽籤（課堂趣味版）",
+                drawModeLabel: "抽籤模式：",
+                commonOption: "普通抽籤",
+                fashionOption: "趣味抽籤",
+                coordinateOption: "座標抽籤",
+                totalNumbersLabel: "座號總數：",
+                absentNumbersLabel: "請假／已抽座號（以逗號分隔）：",
+                drawButton: "開始抽籤",
+                resetButton: "重置號碼",
+                alertText: "號碼已全部使用，請重置號碼後再試。",
+                closeButton: "關閉視窗",
+                rowNumberLabel: "行數：",
+                columnNumberLabel: "列數：",
+                bgMusicLabel: "抽籤音效：",
+                stopSoundLabel: "暫停音效：",
+                animationText: "抽籤中...",
+                modalTitle: "抽籤結果",
+                totalNumbersPlaceholder: "最小值為 1",
+                absentNumbersPlaceholder: "例如：1, 2, 3",
+                browseButton: "瀏覽",
+                noFileSelected: "未選擇文件"
+            },
+            zh_CN: {
+                title: "线上抽签（课堂趣味版）",
+                drawModeLabel: "抽签模式：",
+                commonOption: "普通抽签",
+                fashionOption: "趣味抽签",
+                coordinateOption: "座标抽签",
+                totalNumbersLabel: "座号总数：",
+                absentNumbersLabel: "请假／已抽座号（以逗号分隔）：",
+                drawButton: "开始抽签",
+                resetButton: "重置号码",
+                alertText: "号码已全部使用，请重置号码后再试。",
+                closeButton: "关闭窗口",
+                rowNumberLabel: "行数：",
+                columnNumberLabel: "列数：",
+                bgMusicLabel: "抽签音效：",
+                stopSoundLabel: "暂停音效：",
+                animationText: "抽签中...",
+                modalTitle: "抽签结果",
+                totalNumbersPlaceholder: "最小值为 1",
+                absentNumbersPlaceholder: "例如：1, 2, 3",
+                browseButton: "浏览",
+                noFileSelected: "未选择文件"
+            },
+            en: {
+                title: "Online Drawing (Classroom Fun Version)",
+                drawModeLabel: "Draw Mode:",
+                drawModeLabel: "Draw Mode:",
+                commonOption: "Common Draw",
+                fashionOption: "Fun Draw",
+                coordinateOption: "Coordinate Draw",
+                totalNumbersLabel: "Total Numbers:",
+                absentNumbersLabel: "Absent/Drawn Numbers (comma-separated):",
+                drawButton: "Start Drawing",
+                resetButton: "Reset Numbers",
+                alertText: "All numbers have been used, please reset numbers and try again.",
+                closeButton: "Close Window",
+                rowNumberLabel: "Rows:",
+                columnNumberLabel: "Columns:",
+                bgMusicLabel: "Draw Sound:",
+                stopSoundLabel: "Pause Sound:",
+                animationText: "Drawing...",
+                modalTitle: "Draw Result",
+                totalNumbersPlaceholder: "Minimum value is 1",
+                absentNumbersPlaceholder: "e.g., 1, 2, 3",
+
+                browseButton: "Browse",
+                noFileSelected: "No file selected"
+            }
+        };
+
+        document.getElementById('languageSelector').addEventListener('change', function(event) {
+            const selectedLanguage = event.target.value;
+            updateLanguage(selectedLanguage);
+        });
+
+        function updateLanguage(language) {
+            document.querySelector('h1').textContent = translations[language].title;
+            document.querySelector('label[for="drawMode"]').textContent = translations[language].drawModeLabel;
+            document.getElementById('drawMode').options[0].textContent = translations[language].commonOption;
+            document.getElementById('drawMode').options[1].textContent = translations[language].fashionOption;
+            document.getElementById('drawMode').options[2].textContent = translations[language].coordinateOption;
+            document.querySelector('label[for="totalNumbers"]').textContent = translations[language].totalNumbersLabel;
+            document.querySelector('label[for="absentNumbers"]').textContent = translations[language].absentNumbersLabel;
+            document.querySelector('label[for="rowNumber"]').textContent = translations[language].rowNumberLabel;
+            document.querySelector('label[for="columnNumber"]').textContent = translations[language].columnNumberLabel;
+            document.querySelector('label[for="bgMusic"]').textContent = translations[language].bgMusicLabel;
+            document.querySelector('label[for="stopSound"]').textContent = translations[language].stopSoundLabel;
+            document.getElementById('drawButton').textContent = translations[language].drawButton;
+            document.querySelector('.reset-button').textContent = translations[language].resetButton;
+            document.querySelector('.alert-content div').textContent = translations[language].alertText;
+            document.querySelector('.close').textContent = translations[language].closeButton;
+            document.getElementById('animation').textContent = translations[language].animationText;
+            document.querySelector('.modal-title').textContent = translations[language].modalTitle;
+
+            // 更新 placeholder 文字
+            document.getElementById('totalNumbers').placeholder = translations[language].totalNumbersPlaceholder;
+            document.getElementById('absentNumbers').placeholder = translations[language].absentNumbersPlaceholder;
+
+            // 更新文件選擇器按钮和文字
+            document.getElementById('bgMusicButton').textContent = translations[language].browseButton || "瀏覽";
+            document.getElementById('stopSoundButton').textContent = translations[language].browseButton || "瀏覽";
+            document.getElementById('bgMusicFilename').textContent = translations[language].noFileSelected || "未選擇文件";
+            document.getElementById('stopSoundFilename').textContent = translations[language].noFileSelected || "未選擇文件";
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedLanguage = localStorage.getItem('language') || 'zh_TW';
+            document.getElementById('languageSelector').value = savedLanguage;
+            updateLanguage(savedLanguage);
+        });
+
         let bgMusic = "bg.mp3";
         let stopSound = "stop.mp3";
         let bgMusicAudio = null;
