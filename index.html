@@ -310,89 +310,91 @@
             console.log("Total Numbers: ", totalNumbers);
             console.log("Absent Numbers: ", absentNumbers);
 
-            // 比較請假座號與座號總數的長度
-            if (absentNumbers.length >= totalNumbers) {
-                showAlert(); // 如果請假座號的長度大於或等於座號總數，顯示提示
-                return;
-            }
-
-            let availableNumbers = [];
-            for (let i = 1; i <= totalNumbers; i++) {
-                if (!absentNumbers.includes(i)) {
-                    availableNumbers.push(i);
+            // 如果是普通抽籤或趣味抽籤模式
+            if (drawMode !== "coordinate") {
+                // 比較請假座號與座號總數的長度
+                if (absentNumbers.length >= totalNumbers) {
+                    showAlert(); // 如果請假座號的長度大於或等於座號總數，顯示提示
+                    return;
                 }
-            }
 
-            console.log("Available Numbers: ", availableNumbers);
-
-            // 檢查是否有可用的號碼，且確保 absentNumbers.length > 0 才顯示提示
-            if (availableNumbers.length === 0 && absentNumbers.length > 0) {
-                showAlert(); // 如果沒有可用的號碼且請假或抽過座號的長度大於 0，顯示提示
-                return;
-            }
-
-            if(drawMode === "simple") {
-                playBgMusic();
-                document.getElementById('animation').style.display = 'block';
-                document.getElementById('drawButton').textContent = '停止抽籤';
-                document.getElementById('drawButton').classList.remove('start-button');
-                document.getElementById('drawButton').classList.add('stop-button');
-                drawing = true;
-
-                drawInterval = setInterval(() => {
-                    if (availableNumbers.length > 0) {
-                        const randomNumberIndex = Math.floor(Math.random() * availableNumbers.length);
-                        lastDrawnNumber = availableNumbers[randomNumberIndex];
-
-                        const modalText = document.getElementById('modalText');
-                        modalText.innerHTML = `中籤座號：${lastDrawnNumber}`;
-
-                        availableNumbers.splice(randomNumberIndex, 1); // 移除已抽出的號碼
-
-                        // 檢查是否已經抽取完所有可用號碼
-                        if (availableNumbers.length === 0 && absentNumbers.length + availableNumbers.length >= totalNumbers) {
-                            clearInterval(drawInterval);
-                            stopDrawing();
-                            setTimeout(showAlert, 500); // 顯示提示視窗，加入短暫延遲避免過早觸發
-                            return;
-                        }
+                let availableNumbers = [];
+                for (let i = 1; i <= totalNumbers; i++) {
+                    if (!absentNumbers.includes(i)) {
+                        availableNumbers.push(i);
                     }
-                }, 100);
-            } 
-            else if (drawMode === "normal") {
-                playBgMusic();
-                document.getElementById('animation').style.display = 'block';
-                document.getElementById('drawButton').textContent = '停止抽籤';
-                document.getElementById('drawButton').classList.remove('start-button');
-                document.getElementById('drawButton').classList.add('stop-button');
-                drawing = true;
+                }
 
-                drawInterval = setInterval(() => {
-                    if (availableNumbers.length > 0) {
-                        const randomNumberIndex = Math.floor(Math.random() * availableNumbers.length);
-                        lastDrawnNumber = availableNumbers[randomNumberIndex];
+                console.log("Available Numbers: ", availableNumbers);
 
-                        const modes = ["大十字", "小十字", "大叉叉", "小叉叉", "九宮格", "正方形", "三角形"];
-                        const randomModeIndex = Math.floor(Math.random() * modes.length);
-                        const coordinatePattern = modes[randomModeIndex];
+                // 檢查是否有可用的號碼，且確保 absentNumbers.length > 0 才顯示提示
+                if (availableNumbers.length === 0 && absentNumbers.length > 0) {
+                    showAlert(); // 如果沒有可用的號碼且請假或抽過座號的長度大於 0，顯示提示
+                    return;
+                }
 
-                        const modalText = document.getElementById('modalText');
-                        modalText.innerHTML = `抽籤模式：${coordinatePattern}<br>中籤座號：${lastDrawnNumber}`;
+                if (drawMode === "simple") {
+                    playBgMusic();
+                    document.getElementById('animation').style.display = 'block';
+                    document.getElementById('drawButton').textContent = '停止抽籤';
+                    document.getElementById('drawButton').classList.remove('start-button');
+                    document.getElementById('drawButton').classList.add('stop-button');
+                    drawing = true;
 
-                        availableNumbers.splice(randomNumberIndex, 1); // 移除已抽出的號碼
+                    drawInterval = setInterval(() => {
+                        if (availableNumbers.length > 0) {
+                            const randomNumberIndex = Math.floor(Math.random() * availableNumbers.length);
+                            lastDrawnNumber = availableNumbers[randomNumberIndex];
 
-                        // 檢查是否已經抽取完所有可用號碼
-                        if (availableNumbers.length === 0 && absentNumbers.length + availableNumbers.length >= totalNumbers) {
-                            clearInterval(drawInterval);
-                            stopDrawing();
-                            setTimeout(showAlert, 500); // 顯示提示視窗，加入短暫延遲避免過早觸發
-                            return;
+                            const modalText = document.getElementById('modalText');
+                            modalText.innerHTML = `中籤座號：${lastDrawnNumber}`;
+
+                            availableNumbers.splice(randomNumberIndex, 1); // 移除已抽出的號碼
+
+                            // 檢查是否已經抽取完所有可用號碼
+                            if (availableNumbers.length === 0 && absentNumbers.length + availableNumbers.length >= totalNumbers) {
+                                clearInterval(drawInterval);
+                                stopDrawing();
+                                setTimeout(showAlert, 500); // 顯示提示視窗，加入短暫延遲避免過早觸發
+                                return;
+                            }
                         }
-                    }
-                }, 100);
+                    }, 100);
+                } 
+                else if (drawMode === "normal") {
+                    playBgMusic();
+                    document.getElementById('animation').style.display = 'block';
+                    document.getElementById('drawButton').textContent = '停止抽籤';
+                    document.getElementById('drawButton').classList.remove('start-button');
+                    document.getElementById('drawButton').classList.add('stop-button');
+                    drawing = true;
 
-            } 
-            else if (drawMode === "coordinate") {
+                    drawInterval = setInterval(() => {
+                        if (availableNumbers.length > 0) {
+                            const randomNumberIndex = Math.floor(Math.random() * availableNumbers.length);
+                            lastDrawnNumber = availableNumbers[randomNumberIndex];
+
+                            const modes = ["大十字", "小十字", "大叉叉", "小叉叉", "九宮格", "正方形", "三角形"];
+                            const randomModeIndex = Math.floor(Math.random() * modes.length);
+                            const coordinatePattern = modes[randomModeIndex];
+
+                            const modalText = document.getElementById('modalText');
+                            modalText.innerHTML = `抽籤模式：${coordinatePattern}<br>中籤座號：${lastDrawnNumber}`;
+
+                            availableNumbers.splice(randomNumberIndex, 1); // 移除已抽出的號碼
+
+                            // 檢查是否已經抽取完所有可用號碼
+                            if (availableNumbers.length === 0 && absentNumbers.length + availableNumbers.length >= totalNumbers) {
+                                clearInterval(drawInterval);
+                                stopDrawing();
+                                setTimeout(showAlert, 500); // 顯示提示視窗，加入短暫延遲避免過早觸發
+                                return;
+                            }
+                        }
+                    }, 100);
+
+                } 
+            } else if (drawMode === "coordinate") {
                 const row = parseInt(document.getElementById('rowNumber').value);
                 const column = parseInt(document.getElementById('columnNumber').value);
 
